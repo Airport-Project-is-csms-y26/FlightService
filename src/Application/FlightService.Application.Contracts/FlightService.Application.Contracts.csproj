@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <ProjectReference Include="..\FlightService.Application.Models\FlightService.Application.Models.csproj"/>
+    </ItemGroup>
+</Project>

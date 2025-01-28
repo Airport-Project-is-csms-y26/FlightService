@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package flights;
+
+option csharp_namespace = "Flights.FlightsService.Contracts";
+
+import "google/protobuf/timestamp.proto";
+
+service FlightsService {
+  rpc Create (CreateFlightRequest) returns (CreateFlightResponse);
+
+  rpc ChangeFlightStatus (ChangeFlightStatusRequest) returns (ChangeFlightStatusResponse);
+
+  rpc GetFlights (GetFlightsRequest) returns (GetFlightsResponse);
+}
+
+enum FlightStatus {
+  STATE_NONE = 0;
+  STATE_SCHEDULED = 1;
+  STATE_BOARDING = 2;  
+  STATE_DEPARTED = 3;
+  STATE_DELAYED = 4;
+  STATE_CANCELLED = 5;
+  STATE_ARRIVED = 6;
+}
+
+message CreateFlightRequest {
+  string from = 1;
+  string to = 2;
+  int64 plane_number = 3;
+  google.protobuf.Timestamp departure_time = 4;
+}
+
+message CreateFlightResponse {
+}
+
+message ChangeFlightStatusRequest {
+  int64 flight_id = 1;
+  FlightStatus status = 2;
+}
+
+message ChangeFlightStatusResponse {
+}
+
+message GetFlightsRequest {
+  int32 cursor = 1;
+  int32 page_size = 2;
+  repeated int64 flights_ids = 3;
+}
+
+message GetFlightsResponse {
+  repeated Flight flights = 1;
+}
+
+message Flight {
+  int64 flight_id = 1;
+  string from = 2;
+  string to = 3;
+  int64 plane_number = 4;
+  FlightStatus status = 5;
+  google.protobuf.Timestamp departure_time = 6;
+}

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package tasks;
+
+option csharp_namespace = "Tasks.Kafka.Contracts";
+
+import "google/protobuf/timestamp.proto";
+
+message TaskProcessingKey {
+  int64 flight_id = 1;
+}
+
+message TaskProcessingValue {
+  int64 flight_id = 1;
+  google.protobuf.Timestamp done_at = 2;
+}

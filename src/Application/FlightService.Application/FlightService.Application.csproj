@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Presentation\FlightService.Presentation.Kafka\FlightService.Presentation.Kafka.csproj" />
+        <ProjectReference Include="..\FlightService.Application.Abstractions\FlightService.Application.Abstractions.csproj"/>
+        <ProjectReference Include="..\FlightService.Application.Contracts\FlightService.Application.Contracts.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FluentMigrator.Runner" />
+        <PackageReference Include="Google.Protobuf" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" />
+    </ItemGroup>
+
+
+
+</Project>

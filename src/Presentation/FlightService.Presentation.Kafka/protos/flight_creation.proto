@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package tasks;
+
+option csharp_namespace = "Tasks.Kafka.Contracts";
+
+import "google/protobuf/timestamp.proto";
+
+message FlightCreationKey {
+  int64 flight_id = 1;
+}
+
+message FlightCreationValue {
+  int64 flight_id = 1;
+  int64 plane_number = 2;
+  google.protobuf.Timestamp depart_time = 3;
+}
