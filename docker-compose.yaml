@@ -1,0 +1,123 @@
+﻿services:
+  postgres-passenger-service:
+    image: postgres:latest
+    container_name: passenger-service-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5448:5432"
+    restart: unless-stopped
+    networks:
+      - airport-network
+  
+  postgres-flight-service:
+    image: postgres:latest
+    container_name: flight-service-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5449:5432"
+    restart: unless-stopped
+    networks:
+      - airport-network
+  
+  postgres-task-service:
+    image: postgres:latest
+    container_name: task-service-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5450:5432"
+    restart: unless-stopped
+    networks:
+      - airport-network
+
+  postgres-ticket-service:
+    image: postgres:latest
+    container_name: ticket-service-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5451:5432"
+    restart: unless-stopped
+    networks:
+      - airport-network
+
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    restart: unless-stopped
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - airport-network
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    restart: unless-stopped
+    environment:
+      KAFKA_LOG_DIRS: /kafka-data
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_LISTENERS: EXTERNAL://:9092,INTERNAL://:9094
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://127.0.0.1:8001,INTERNAL://kafka:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
+      ALLOW_PLAINTEXT_LISTENER: yes
+      KAFKA_CREATE_TOPICS: >
+        flight_creation:1:1,
+        task_processing:1:1,
+        passenger_notifications:1:1,
+    depends_on:
+      - zookeeper
+    networks:
+      - airport-network
+    volumes:
+      - airport-kafka-data:/kafka-data
+    ports:
+      - '8001:9092'
+      - "9094:9094"
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    build:
+      context: .
+    restart: unless-stopped
+    depends_on:
+      - kafka
+    networks:
+      - airport-network
+    ports:
+      - "8003:8080"
+    volumes:
+      - ./FlightService/src/Presentation/FlightService.Presentation.Kafka/protos:/schemas # change path to your local proto directory
+    environment:
+      kafka.clusters.0.name: kafka
+      kafka.clusters.0.bootstrapServers: kafka:9094
+      kafka.clusters.0.defaultKeySerde: ProtobufFile
+      kafka.clusters.0.defaultValueSerde: ProtobufFile
+
+      kafka.clusters.0.serde.0.name: ProtobufFile
+      kafka.clusters.0.serde.0.properties.protobufFilesDir: /schemas/
+
+      kafka.clusters.0.serde.0.properties.protobufMessageNameForKeyByTopic.flight_creation: tasks.FlightCreationKey
+      kafka.clusters.0.serde.0.properties.protobufMessageNameForKeyByTopic.task_processing: tasks.TaskProcessingKey
+      kafka.clusters.0.serde.0.properties.protobufMessageNameForKeyByTopic.passenger_notifications: tasks.PassengerNotificationsKey
+
+      kafka.clusters.0.serde.0.properties.protobufMessageNameByTopic.flight_creation: tasks.FlightCreationValue
+      kafka.clusters.0.serde.0.properties.protobufMessageNameByTopic.task_processing: tasks.TaskProcessingValue
+      kafka.clusters.0.serde.0.properties.protobufMessageNameByTopic.passenger_notifications: tasks.PassengerNotificationsValue
+
+networks:
+  airport-network:
+    driver: bridge
+
+volumes:
+  airport-kafka-data:
